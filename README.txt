@@ -1,28 +1,47 @@
-REMIX DEFAULT WORKSPACE
+THE CROWDFUNDING SMART CONTRACT
 
-Remix default workspace is present when:
-i. Remix loads for the very first time 
-ii. A new workspace is created with 'Default' template
-iii. There are no files existing in the File Explorer
+This smart contract defines a crowd-funding campaign with features for contribution, refunding, and managing spending requests. Here's a breakdown of its functionalities:
 
-This workspace contains 3 directories:
+1. Campaign Setup:
 
-1. 'contracts': Holds three contracts with increasing levels of complexity.
-2. 'scripts': Contains four typescript files to deploy a contract. It is explained below.
-3. 'tests': Contains one Solidity test file for 'Ballot' contract & one JS test file for 'Storage' contract.
+Defines a goal amount to be raised.
+Sets a deadline for the campaign.
+Tracks the campaign administrator (admin) and minimum contribution amount.
 
-SCRIPTS
+2. Contributions:
 
-The 'scripts' folder has four typescript files which help to deploy the 'Storage' contract using 'web3.js' and 'ethers.js' libraries.
+Allows users to contribute funds (payable in Ether) to the campaign.
+Enforces a minimum contribution and checks if the deadline hasn't passed.
+Keeps track of individual contributions per address in a mapping (contributors).
+Increments the number of contributors when someone contributes for the first time.
+Updates the total raised amount (raisedAmount).
+Emits a ContributeEvent to record the contribution on the blockchain.
 
-For the deployment of any other contract, just update the contract's name from 'Storage' to the desired contract and provide constructor arguments accordingly 
-in the file `deploy_with_ethers.ts` or  `deploy_with_web3.ts`
+3. Refunds:
 
-In the 'tests' folder there is a script containing Mocha-Chai unit tests for 'Storage' contract.
+Allows contributors to claim refunds if the goal isn't reached by the deadline.
+Ensures the deadline has passed and the goal wasn't met.
+Transfers the contributor's amount back to their address.
+Resets the contributor's contribution amount in the contributors mapping.
 
-To run a script, right click on file name in the file explorer and click 'Run'. Remember, Solidity file must already be compiled.
-Output from script will appear in remix terminal.
+4. Spending Requests:
 
-Please note, require/import is supported in a limited manner for Remix supported modules.
-For now, modules supported by Remix are ethers, web3, swarmgw, chai, multihashes, remix and hardhat only for hardhat.ethers object/plugin.
-For unsupported modules, an error like this will be thrown: '<module_name> module require is not supported by Remix IDE' will be shown.
+Defines a Request struct to store details like description, recipient address, amount, completion status, and number of voters.
+Allows the admin to create spending requests using the createRequest function.
+Tracks spending requests in a separate mapping (requests) using an index (numRequests) that starts from zero.
+
+5. Voting on Requests:
+
+Lets contributors vote on spending requests.
+Requires the contributor to have contributed before voting.
+Prevents users from voting multiple times on the same request.
+Tracks votes per request and per contributor in the requests mapping.
+
+6. Making Payments:
+
+Only the admin can approve and pay for spending requests using makePayment.
+Ensures the request isn't already completed and has received enough votes (more than half of contributors).
+Transfers the requested amount to the recipient address.
+Marks the request as completed in the requests mapping.
+Emits a MakePaymentEvent to record the transaction.
+Overall, this smart contract facilitates a crowd-funding campaign with transparency and control. Contributors can track their funds and vote on spending decisions, while the admin manages requests and ensures responsible use of the raised funds.
